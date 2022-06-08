@@ -12,6 +12,7 @@ const express = require('express');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
+const reviews = require("./reviews/reviewControllers");
 
 app.use(express.json());
 
@@ -63,72 +64,73 @@ app.get('/style/:id', (req, res) => {
 
 // Reviews Meta for product
 app.get('/review/:id', (req, res) => {
-  fetch(`${process.env.URL}/reviews/meta?product_id=${req.params.id}`, {
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-  })
-    .then((response) => response.json())
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/reviews/meta?product_id=${req.params.id}`, {
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  // })
+  //   .then((response) => response.json())
+  //   .then((results) => res.send(results));
 });
 
 // Other Reviews
 app.get('/review/:id/:page/:count/:sort', (req, res) => {
-  fetch(`${process.env.URL}/reviews?product_id=${req.params.id}&page=${req.params.page}&count=${req.params.count}&sort=${req.params.sort}`, {
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-  })
-    .then((response) => response.json())
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/reviews?product_id=${req.params.id}&page=${req.params.page}&count=${req.params.count}&sort=${req.params.sort}`, {
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  // })
+  //   .then((response) => response.json())
+  //   .then((results) => res.send(results));
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  fetch(`${process.env.URL}/reviews/${req.params.review_id}/helpful`, {
-    method: 'PUT',
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-  })
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/reviews/${req.params.review_id}/helpful`, {
+  //   method: 'PUT',
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  // })
+  //   .then((results) => res.send(results));
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
-  fetch(`${process.env.URL}/reviews/${req.params.review_id}/report`, {
-    method: 'PUT',
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-  })
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/reviews/${req.params.review_id}/report`, {
+  //   method: 'PUT',
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  // })
+  //   .then((results) => res.send(results));
 });
 
 app.post('/reviews', (req, res) => {
-  fetch(`${process.env.URL}/reviews`, {
-    method: 'POST',
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-    body: JSON.stringify(req.body.data),
-  })
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/reviews`, {
+  //   method: 'POST',
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  //   body: JSON.stringify(req.body.data),
+  // })
+  //   .then((results) => res.send(results));
 });
 
 // Questions
 app.get('/review/:id', (req, res) => {
-  fetch(`${process.env.URL}/qa/questions?product_id=${req.params.id}&count=1000`, {
-    headers: {
-      Authorization: process.env.GITTOKEN,
-      'User-Agent': 'user',
-    },
-  })
-    .then((response) => response.json())
-    .then((results) => res.send(results));
+  // fetch(`${process.env.URL}/qa/questions?product_id=${req.params.id}&count=1000`, {
+  //   headers: {
+  //     Authorization: process.env.GITTOKEN,
+  //     'User-Agent': 'user',
+  //   },
+  // })
+  //   .then((response) => response.json())
+  //   .then((results) => res.send(results));
+
 });
 
 //Overview
