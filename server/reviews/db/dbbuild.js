@@ -5,15 +5,15 @@ require('dotenv').config();
 
 const config = {
   //user: 'postgres',
-  password: process.env.PGPASS,
-  port: process.env.PGPORT,
-  host: process.env.PGHOST
+  password: process.env.PGREVIEWSPASS,
+  port: process.env.PGREVIEWSPORT,
+  host: process.env.PGREVIEWSHOST
 }
 
 const { dropdbAsync, createdbAsync} = Promise.promisifyAll(pgtools, {multiArgs: true});
 
-dropdbAsync(config, process.env.PGDATABASE)
-  .then(() => createdbAsync(config, process.env.PGDATABASE))
+dropdbAsync(config, process.env.PGREVIEWSDATABASE)
+  .then(() => createdbAsync(config, process.env.PGREVIEWSDATABASE))
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Reviews (
     review_id BIGSERIAL PRIMARY KEY,
     product_id BIGSERIAL NOT NULL,

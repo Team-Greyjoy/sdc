@@ -4,10 +4,10 @@ require("dotenv").config();
 
 const pool = new Pool({
   //user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASS,
-  port: process.env.PGPORT,
+  host: process.env.PGREVIEWSHOST,
+  database: process.env.PGREVIEWSDATABASE,
+  password: process.env.PGREVIEWSPASS,
+  port: process.env.PGREVIEWSPORT,
 })
 
 const db = Promise.promisifyAll(pool, {multiArgs: true});
