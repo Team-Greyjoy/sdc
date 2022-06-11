@@ -8,7 +8,7 @@
     "build": "webpack --mode production",
     "serve": "nodemon server/app.js",
     "rserve": "nodemon server/reviews/reviews.js",
-    "buildrevdb": "node server/reviews/db/dbbuild.js",
+    "buildrdb": "node server/reviews/db/dbbuild.js",
     "lint": "eslint src/**/*.{js,jsx}",
     "lint:fix": "eslint --fix src/**/*.{js,jsx}",
     "test": "jest"
