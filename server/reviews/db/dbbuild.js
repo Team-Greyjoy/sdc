@@ -30,17 +30,17 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
   )`))
   .then(() => db.queryAsync(`COPY Reviews FROM '${process.env.REVIEWSDATA}' DELIMITER ',' csv HEADER NULL 'null'`))
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Photos (
-    photo_id BIGINT PRIMARY KEY,
-    review_id BIGINT NOT NULL,
+    photo_id SERIAL PRIMARY KEY,
+    review_id SERIAL NOT NULL,
     url VARCHAR NOT NULL,
     CONSTRAINT fk_review
       FOREIGN KEY(review_id)
 	      REFERENCES Reviews(review_id)
   )`))
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Reviews_Chars (
-    id BIGINT PRIMARY KEY,
-    char_id BIGINT NOT NULL,
-    review_id BIGINT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    char_id SERIAL NOT NULL,
+    review_id SERIAL NOT NULL,
     value INTEGER NOT NULL,
     CONSTRAINT fk_review
       FOREIGN KEY(review_id)
