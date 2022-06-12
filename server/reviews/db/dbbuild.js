@@ -18,15 +18,15 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
     review_id SERIAL PRIMARY KEY,
     product_id SERIAL NOT NULL,
     rating INTEGER NOT NULL,
-    date BIGINT NOT NULL,
+    date BIGINT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000,
     summary VARCHAR NULL DEFAULT NULL,
     body VARCHAR(1000) NULL DEFAULT NULL,
     recommend BOOLEAN NOT NULL,
-    report BOOLEAN NOT NULL,
+    report BOOLEAN NOT NULL DEFAULT FALSE,
     reviewer_name VARCHAR NULL DEFAULT NULL,
-    reviewer_email VARCHAR,
+    reviewer_email VARCHAR NULL DEFAULT NULL,
     response VARCHAR NULL DEFAULT NULL,
-    helpfulness INTEGER NULL DEFAULT NULL
+    helpfulness INTEGER NULL DEFAULT 0
   )`))
   .then(() => db.queryAsync(`COPY Reviews FROM '${process.env.REVIEWSDATA}' DELIMITER ',' csv HEADER NULL 'null'`))
   .then(() => db.queryAsync(`SELECT MAX(review_id) FROM Reviews`))
@@ -57,6 +57,7 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
   .then((response) => db.queryAsync(`ALTER SEQUENCE Reviews_Chars_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
   .then(() => db.queryAsync(`CREATE INDEX pindex ON Photos (review_id)`))
   .then(() => db.queryAsync(`CREATE INDEX rcindex ON Reviews_Chars (review_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX rindex ON Reviews (review_id)`))
   .catch((e) => {
     console.log(e);
     res.sendStatus(404);
