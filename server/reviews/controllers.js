@@ -1,4 +1,4 @@
-const { getReviews, getPhotos, postReviews, reportReviews, helpfulReviews, postPhoto, postChar } = require("./models");
+const { getReviews, getPhotos, getRecAndRate, getChars, postReviews, reportReviews, helpfulReviews, postPhoto, postChar } = require("./models");
 const db = require('./db');
 const express = require('express');
 
@@ -87,7 +87,38 @@ module.exports = {
 
   meta: {
     get: function (req, res) {
-      res.sendStatus(200);
+      const { product_id } = req.query;
+      const queryRecAndRate = {text: getRecAndRate, values: [product_id]};
+      const queryChars = {text: getChars, values: [product_id]};
+      let response = { product_id };
+      Promise.all([db.queryAsync(queryRecAndRate), db.queryAsync(queryChars)])
+        .then((result) => {
+          response = result[0][0].rows.reduce((acc, review) => {
+            const recommend = review.recommend ? 1 : 0;
+            response.recommended = {...acc.recommended, [recommend]: (acc[review.rating] || 0) + recommend}
+            response.ratings = {...acc.ratings, [review.rating]: (acc[review.rating] || 0) + 1};
+            return response;
+          }, response);
+          response.characteristics = {};
+          result[1][0].rows.forEach((review, i) => {
+            const { id, name } = review;
+            if(!response.characteristics[name]) {
+              response.characteristics[name] = { id, value: review.value, count: 1}
+              return;
+            }
+            const { value, count } = response.characteristics[name];
+            response.characteristics[name].value = Math.round((value * count + review.value) / (count + 1) * 1000) / 1000;
+            response.characteristics[name].count = count + 1;
+          });
+          Object.keys(response.characteristics).forEach((key,i) => {
+            delete response.characteristics[key].count;
+          })
+          res.status(200).send(response);
+        })
+        .catch((e) => {
+          console.log(e);
+          res.sendStatus(404);
+        })
     },
   },
 
@@ -95,14 +126,9 @@ module.exports = {
   helpful: {
     put: function (req, res) {
       const { review_id } = req.params;
-      const query = {
-        text: helpfulReviews,
-        values: [review_id]
-      }
+      const query = {text: helpfulReviews, values: [review_id]};
       db.queryAsync(query)
-        .then((response) => {
-          res.sendStatus(204);
-        })
+        .then((response) => res.sendStatus(204))
         .catch((e) => {
           console.log(e);
           res.sendStatus(404);
@@ -113,14 +139,9 @@ module.exports = {
   report: {
     put: function (req, res) {
       const { review_id } = req.params;
-      const query = {
-        text: reportReviews,
-        values: [review_id]
-      }
+      const query = {text: reportReviews, values: [review_id]};
       db.queryAsync(query)
-        .then((response) => {
-          res.sendStatus(204);
-        })
+        .then((response) => res.sendStatus(204))
         .catch((e) => {
           console.log(e);
           res.sendStatus(404);

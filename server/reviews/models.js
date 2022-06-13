@@ -17,7 +17,23 @@ module.exports = {
   `,
   //86400=sec/day
 
-  getPhotos: ` SELECT
+  getRecAndRate: `SELECT
+      Reviews.rating,
+      Reviews.recommend
+    FROM Reviews
+    WHERE Reviews.product_id = $1
+  `,
+
+  getChars: `SELECT
+      Chars.name,
+      Chars.char_id AS id,
+      Reviews_Chars.value
+    From Reviews_Chars
+    JOIN Chars USING (char_id)
+    WHERE Chars.product_id = $1
+  `,
+
+  getPhotos: `SELECT
       Photos.photo_id AS id,
       Photos.url
     FROM Photos

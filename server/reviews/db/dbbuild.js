@@ -14,6 +14,7 @@ const { dropdbAsync, createdbAsync} = Promise.promisifyAll(pgtools, {multiArgs: 
 
 dropdbAsync(config, process.env.PGREVIEWSDATABASE)
   .then(() => createdbAsync(config, process.env.PGREVIEWSDATABASE))
+  //Reviews
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Reviews (
     review_id SERIAL PRIMARY KEY,
     product_id SERIAL NOT NULL,
@@ -31,6 +32,7 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
   .then(() => db.queryAsync(`COPY Reviews FROM '${process.env.REVIEWSDATA}' DELIMITER ',' csv HEADER NULL 'null'`))
   .then(() => db.queryAsync(`SELECT MAX(review_id) FROM Reviews`))
   .then((response) => db.queryAsync(`ALTER SEQUENCE Reviews_review_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
+  //Photos
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Photos (
     photo_id SERIAL PRIMARY KEY,
     review_id SERIAL NOT NULL,
@@ -38,7 +40,18 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
     CONSTRAINT fk_review
       FOREIGN KEY(review_id)
 	      REFERENCES Reviews(review_id)
+        )`))
+  .then(() => db.queryAsync(`COPY Photos FROM '${process.env.REVIEWSPHOTODATA}' DELIMITER ',' csv HEADER`))
+  .then(() => db.queryAsync(`SELECT MAX(Photos.photo_id) AS max FROM Photos`))
+  .then((response) => db.queryAsync(`ALTER SEQUENCE Photos_photo_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
+  //Chars
+  .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Chars (
+    char_id SERIAL PRIMARY KEY,
+    product_id SERIAL NOT NULL,
+    name VARCHAR NOT NULL
   )`))
+  .then(() => db.queryAsync(`COPY Chars FROM '${process.env.CHARSDATA}' DELIMITER ',' csv HEADER`))
+  //reviewchars
   .then(() => db.queryAsync(`CREATE TABLE IF NOT EXISTS Reviews_Chars (
     id SERIAL PRIMARY KEY,
     char_id SERIAL NOT NULL,
@@ -46,18 +59,19 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
     value INTEGER NOT NULL,
     CONSTRAINT fk_review
       FOREIGN KEY(review_id)
-	      REFERENCES Reviews(review_id)
+        REFERENCES Reviews(review_id),
+    CONSTRAINT fk_char
+      FOREIGN KEY(char_id)
+        REFERENCES Chars(char_id)
   )`))
-  .then(() => db.queryAsync(`COPY Photos FROM '${process.env.REVIEWSPHOTODATA}' DELIMITER ',' csv HEADER`))
   .then(() => db.queryAsync(`COPY Reviews_Chars FROM '${process.env.REVIEWSCHARSDATA}' DELIMITER ',' csv HEADER`))
-
-  .then(() => db.queryAsync(`SELECT MAX(Photos.photo_id) AS max FROM Photos`))
-  .then((response) => db.queryAsync(`ALTER SEQUENCE Photos_photo_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
   .then(() => db.queryAsync(`SELECT MAX(Reviews_Chars.id) AS max FROM Reviews_Chars`))
   .then((response) => db.queryAsync(`ALTER SEQUENCE Reviews_Chars_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
+  //index
   .then(() => db.queryAsync(`CREATE INDEX pindex ON Photos (review_id)`))
   .then(() => db.queryAsync(`CREATE INDEX rcindex ON Reviews_Chars (review_id)`))
   .then(() => db.queryAsync(`CREATE INDEX rindex ON Reviews (review_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX cindex ON Chars (char_id)`))
   .catch((e) => {
     console.log(e);
     res.sendStatus(404);
