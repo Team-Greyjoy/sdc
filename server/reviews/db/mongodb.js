@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(`mongodb://localhost/${process.env.DB_NAME}`);
+//mongoose.connect(`mongodb://localhost/${process.env.DB_NAME}`);
 
 const { Schema } = mongoose;
 

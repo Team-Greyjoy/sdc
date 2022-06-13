@@ -68,10 +68,13 @@ dropdbAsync(config, process.env.PGREVIEWSDATABASE)
   .then(() => db.queryAsync(`SELECT MAX(Reviews_Chars.id) AS max FROM Reviews_Chars`))
   .then((response) => db.queryAsync(`ALTER SEQUENCE Reviews_Chars_id_seq RESTART WITH ${response[0].rows[0].max + 1}`))
   //index
-  .then(() => db.queryAsync(`CREATE INDEX pindex ON Photos (review_id)`))
-  .then(() => db.queryAsync(`CREATE INDEX rcindex ON Reviews_Chars (review_id)`))
-  .then(() => db.queryAsync(`CREATE INDEX rindex ON Reviews (review_id)`))
-  .then(() => db.queryAsync(`CREATE INDEX cindex ON Chars (char_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX prodr_index ON Reviews (product_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX repr_index ON Reviews (report)`))
+  .then(() => db.queryAsync(`CREATE INDEX dater_index ON Reviews (date)`))
+  .then(() => db.queryAsync(`CREATE INDEX helpr_index ON Reviews (helpfulness)`))
+  .then(() => db.queryAsync(`CREATE INDEX revp_index ON Photos (review_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX charrc_index ON Reviews_Chars (char_id)`))
+  .then(() => db.queryAsync(`CREATE INDEX prodc_index ON Chars (product_id)`))
   .catch((e) => {
     console.log(e);
     res.sendStatus(404);
