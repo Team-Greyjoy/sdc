@@ -1,4 +1,4 @@
-const { getReviews, postReviews, reportReviews, helpfulReviews } = require("./models");
+const { getReviews, getPhotos, postReviews, reportReviews, helpfulReviews, postPhoto, postChar } = require("./models");
 const db = require('./db');
 const express = require('express');
 
@@ -13,12 +13,7 @@ const pageCheck = function(page, length, count) {
 
 module.exports = {
   get: function (req, res) {
-    let {
-      product_id,
-      page,
-      count,
-      sort
-    } = req.query;
+    let { product_id, page, count, sort } = req.query;
 
     if(!product_id) {
       res.sendStatus(404);
@@ -38,13 +33,20 @@ module.exports = {
       const query = {
         text: getReviews,
         values: [product_id, sort.date, sort.helpfulness]
-      }
+      };
 
+      let response = {product: product_id};
       db.queryAsync(query)
-        .then((results) => {
-          let newPage = pageCheck(page, results[0].rows.length, count);
-          results = results[0].rows.slice((newPage - 1) * count, newPage * count);
-          res.status(200).send({product: product_id, page: newPage, count: results.length, results});
+        .then((reviews) => {
+          response.page = pageCheck(page, reviews[0].rows.length, count);
+          response.results = reviews[0].rows.slice((response.page - 1) * count, response.page * count);
+          response.count = response.results.length;
+          return Promise.all(response.results.map((review, i) =>
+            db.queryAsync({text: getPhotos, values: [review.review_id]})))
+        })
+        .then((photos) => {
+          photos.map((photo, i) => response.results[i].photos = photo[0].rows)
+          res.status(200).send(response);
         })
         .catch((e) => {
           console.log(e);
@@ -54,27 +56,29 @@ module.exports = {
   },
 
   post: function (req, res) {
-    const {
-      product_id,
-      rating,
-      summary,
-      body,
-      recommend,
-      name,
-      email,
-      photos,
-      characteristics
-    } = req.body;
-
+    const { product_id, rating, summary, body, recommend, name, email, photos, characteristics } = req.body;
     const query = {
       text: postReviews,
       values: [product_id, rating, summary, body, recommend, name, email]
     }
      db.queryAsync(query)
       .then((response) => {
-        console.log(response);
-        res.sendStatus(201);
+        const { review_id } = response[0].rows[0];
+        if(photos && characteristics) {
+          return Promise.all(photos.map((photo) => db.queryAsync({text: postPhoto, values: [review_id, photo]}))
+            .concat(Object.keys(characteristics)
+              .map((char_id) => db.queryAsync({text: postChar, values: [char_id, review_id, characteristics[char_id]]}))
+            )
+          )
+        } else if (photos) {
+          return Promise.all(photos.map((photo) => db.queryAsync({text: postPhoto, values: [review_id, photo]})))
+        }
+        else if (characteristics) {
+          return Promise.all(Object.keys(characteristics)
+          .map((char_id) => db.queryAsync({text: postChar, values: [char_id, review_id, characteristics[char_id]]})))
+        }
       })
+      .then(() => res.sendStatus(201))
       .catch((e) => {
         console.log(e);
         res.sendStatus(404);
@@ -96,13 +100,13 @@ module.exports = {
         values: [review_id]
       }
       db.queryAsync(query)
-      .then((response) => {
-        res.sendStatus(204);
-      })
-      .catch((e) => {
-        console.log(e);
-        res.sendStatus(404);
-      })
+        .then((response) => {
+          res.sendStatus(204);
+        })
+        .catch((e) => {
+          console.log(e);
+          res.sendStatus(404);
+        })
     },
   },
 
@@ -114,13 +118,13 @@ module.exports = {
         values: [review_id]
       }
       db.queryAsync(query)
-      .then((response) => {
-        res.sendStatus(204);
-      })
-      .catch((e) => {
-        console.log(e);
-        res.sendStatus(404);
-      })
+        .then((response) => {
+          res.sendStatus(204);
+        })
+        .catch((e) => {
+          console.log(e);
+          res.sendStatus(404);
+        })
     },
   },
 }
