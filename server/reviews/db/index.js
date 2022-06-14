@@ -3,7 +3,7 @@ const { Pool, Client } = require("pg");
 require("dotenv").config();
 
 const pool = new Pool({
-  //user: process.env.PGUSER,
+  user: process.env.PGUSERNAME || 'ubuntu',
   host: process.env.PGREVIEWSHOST,
   database: process.env.PGREVIEWSDATABASE,
   password: process.env.PGREVIEWSPASS,
