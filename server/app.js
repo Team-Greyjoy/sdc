@@ -63,7 +63,7 @@ app.get('/style/:id', (req, res) => {
 
 // Reviews Meta for product
 app.get('/review/:id', (req, res) => {
-  fetch(`${process.env.URL}/reviews/meta?product_id=${req.params.id}`, {
+  fetch(`${process.env.REVIEWSURL}/reviews/meta?product_id=${req.params.id}`, {
     headers: {
       Authorization: process.env.GITTOKEN,
       'User-Agent': 'user',
@@ -75,7 +75,7 @@ app.get('/review/:id', (req, res) => {
 
 // Other Reviews
 app.get('/review/:id/:page/:count/:sort', (req, res) => {
-  fetch(`${process.env.URL}/reviews?product_id=${req.params.id}&page=${req.params.page}&count=${req.params.count}&sort=${req.params.sort}`, {
+  fetch(`${process.env.REVIEWSURL}/reviews?product_id=${req.params.id}&page=${req.params.page}&count=${req.params.count}&sort=${req.params.sort}`, {
     headers: {
       Authorization: process.env.GITTOKEN,
       'User-Agent': 'user',
@@ -86,7 +86,7 @@ app.get('/review/:id/:page/:count/:sort', (req, res) => {
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  fetch(`${process.env.URL}/reviews/${req.params.review_id}/helpful`, {
+  fetch(`${process.env.REVIEWSURL}/reviews/${req.params.review_id}/helpful`, {
     method: 'PUT',
     headers: {
       Authorization: process.env.GITTOKEN,
@@ -97,7 +97,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
-  fetch(`${process.env.URL}/reviews/${req.params.review_id}/report`, {
+  fetch(`${process.env.REVIEWSURL}/reviews/${req.params.review_id}/report`, {
     method: 'PUT',
     headers: {
       Authorization: process.env.GITTOKEN,
@@ -108,7 +108,7 @@ app.put('/reviews/:review_id/report', (req, res) => {
 });
 
 app.post('/reviews', (req, res) => {
-  fetch(`${process.env.URL}/reviews`, {
+  fetch(`${process.env.REVIEWSURL}/reviews`, {
     method: 'POST',
     headers: {
       Authorization: process.env.GITTOKEN,

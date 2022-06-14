@@ -1,4 +1,4 @@
-const { getReviews, getPhotos, getRecAndRate, getChars, postReviews, reportReviews, helpfulReviews, postPhoto, postChar } = require("./models");
+const { getReviews, getRecAndRate, getChars, postReviews, reportReviews, helpfulReviews, postPhoto, postChar } = require("./models");
 const db = require('./db');
 const express = require('express');
 
@@ -39,13 +39,8 @@ module.exports = {
       db.queryAsync(query)
         .then((reviews) => {
           response.page = pageCheck(page, reviews[0].rows.length, count);
+          response.count = count;
           response.results = reviews[0].rows.slice((response.page - 1) * count, response.page * count);
-          response.count = response.results.length;
-          return Promise.all(response.results.map((review, i) =>
-            db.queryAsync({text: getPhotos, values: [review.review_id]})))
-        })
-        .then((photos) => {
-          photos.map((photo, i) => response.results[i].photos = photo[0].rows)
           res.status(200).send(response);
         })
         .catch((e) => {
@@ -61,7 +56,7 @@ module.exports = {
       text: postReviews,
       values: [product_id, rating, summary, body, recommend, name, email]
     }
-     db.queryAsync(query)
+    db.queryAsync(query)
       .then((response) => {
         const { review_id } = response[0].rows[0];
         if(photos && characteristics) {
@@ -90,16 +85,14 @@ module.exports = {
       const { product_id } = req.query;
       const queryRecAndRate = {text: getRecAndRate, values: [product_id]};
       const queryChars = {text: getChars, values: [product_id]};
-      let response = { product_id };
+      let response = { product_id, ratings: {}, recommended: {}, characteristics: {}};
       Promise.all([db.queryAsync(queryRecAndRate), db.queryAsync(queryChars)])
         .then((result) => {
-          response = result[0][0].rows.reduce((acc, review) => {
-            const recommend = review.recommend ? 1 : 0;
-            response.recommended = {...acc.recommended, [recommend]: (acc[review.rating] || 0) + recommend}
-            response.ratings = {...acc.ratings, [review.rating]: (acc[review.rating] || 0) + 1};
-            return response;
-          }, response);
-          response.characteristics = {};
+          result[0][0].rows.forEach((review) => {
+            const { recommend, rating } = review;
+            response.recommended[recommend] = (response.recommended[recommend] || 0) + 1;
+            response.ratings[rating] = (response.ratings[rating] || 0) + 1;
+          });
           result[1][0].rows.forEach((review, i) => {
             const { id, name } = review;
             if(!response.characteristics[name]) {

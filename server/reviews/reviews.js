@@ -1,6 +1,6 @@
 const express = require('express');
 require('dotenv').config();
-const router = require('./routers.js')
+const router = require('./routers.js');
 const morgan = require('morgan');
 
 const reviews = express();
