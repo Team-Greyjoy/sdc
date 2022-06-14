@@ -4,7 +4,7 @@ const router = require('./routers.js');
 const morgan = require('morgan');
 
 const reviews = express();
-const port = process.env.REVIEWSPORT || 3001;
+const port = process.env.REVIEWSPORT || 5433;
 
 reviews.use(express.json());
 reviews.use(morgan('dev'));

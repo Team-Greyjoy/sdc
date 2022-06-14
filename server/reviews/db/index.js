@@ -7,7 +7,7 @@ const pool = new Pool({
   host: process.env.PGREVIEWSHOST,
   database: process.env.PGREVIEWSDATABASE,
   password: process.env.PGREVIEWSPASS,
-  port: process.env.PGREVIEWSPORT,
+  port: process.env.PGREVIEWSPORT || 5432,
 })
 
 const db = Promise.promisifyAll(pool, {multiArgs: true});
