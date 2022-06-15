@@ -8,6 +8,8 @@ const pool = new Pool({
   database: process.env.PGREVIEWSDATABASE,
   password: process.env.PGREVIEWSPASS,
   port: process.env.PGREVIEWSPORT || 5432,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 })
 
 const db = Promise.promisifyAll(pool, {multiArgs: true});
